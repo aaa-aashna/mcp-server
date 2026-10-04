@@ -139,6 +139,21 @@ def test_apply_policy_filters(test_case):
         assert "delete_training_job" not in result
 
 
+def test_allow_category_expands_to_matching_tools():
+    tools = {"pre_flight", "check_compatibility", "fine_tune", "list_training_jobs"}
+    policy = {"allow": ["category:planning"]}
+
+    assert apply_policy_filters(tools, policy) == {"pre_flight", "check_compatibility"}
+
+
+def test_allow_and_deny_are_applied_together():
+    tools = {"fine_tune", "run_custom_training", "list_training_jobs"}
+    policy = {"allow": ["category:training"], "deny": ["fine_tune"]}
+
+    assert apply_policy_filters(tools, policy) == {"run_custom_training"}
+
+
+def test_deny_category_removes_matching_tools():
 def test_allow_category_planning():
     tools = {
         "pre_flight",
@@ -181,6 +196,10 @@ def test_deny_category_training():
         "run_container_training",
         "list_training_jobs",
     }
+    policy = {"deny": ["category:training"]}
+
+    assert apply_policy_filters(tools, policy) == {"list_training_jobs"}
+
 
     result = apply_policy_filters(tools, {"deny": ["category:training"]})
 
