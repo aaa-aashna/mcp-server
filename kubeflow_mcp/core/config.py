@@ -244,6 +244,7 @@ def load_config(config_path: Path | None = None) -> Config:
                 "KUBEFLOW_MCP_CLIENTS",
                 ",".join(server_file.get("clients", ["trainer"])),
             ).split(",")
+            if c.strip()
         ],
         persona=os.getenv(
             "KUBEFLOW_MCP_PERSONA",
