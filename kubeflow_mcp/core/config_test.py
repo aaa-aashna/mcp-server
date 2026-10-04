@@ -86,6 +86,14 @@ def test_load_config_env_overrides(test_case):
     assert getattr(getattr(cfg, section), field) == test_case.expected_output["value"]
 
 
+def test_load_config_filters_empty_client_entries(monkeypatch):
+    monkeypatch.setenv("KUBEFLOW_MCP_CLIENTS", "trainer, ,optimizer,,")
+    with patch("kubeflow_mcp.core.config._find_config_file", return_value=None):
+        cfg = load_config()
+
+    assert cfg.server.clients == ["trainer", "optimizer"]
+
+
 def test_load_config_from_file(tmp_path):
     config_file = tmp_path / "config.yaml"
     config_file.write_text(
