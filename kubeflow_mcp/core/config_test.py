@@ -133,9 +133,70 @@ def test_find_config_file_prefers_project_local_config(tmp_path):
         assert _find_config_file() == local_config
 
 
-# TODO(test): test config_path that doesn't exist falls back to default search
-# TODO(test): test malformed YAML handled gracefully
-# TODO(test): test auth config env overrides (KUBEFLOW_MCP_AUTH_TOKEN, KUBEFLOW_MCP_JWKS_URI)
-# TODO(test): test OTEL_EXPORTER_OTLP_ENDPOINT env override
-# TODO(test): test KUBEFLOW_MCP_CONTROLLER_NAMESPACE env override
-# TODO(test): test multiple clients from KUBEFLOW_MCP_CLIENTS env var
+def test_auth_config_env_overrides(tmp_path):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        yaml.dump(
+            {
+                "auth": {
+                    "auth_token": "file-token",
+                    "jwks_uri": "https://file.example/jwks",
+                }
+            }
+        )
+    )
+
+    with patch.dict(
+        "os.environ",
+        {
+            "KUBEFLOW_MCP_AUTH_TOKEN": "env-token",
+            "KUBEFLOW_MCP_JWKS_URI": "https://env.example/jwks",
+        },
+    ):
+        cfg = load_config(config_path=config_file)
+
+    assert cfg.auth.auth_token == "env-token"
+    assert cfg.auth.jwks_uri == "https://env.example/jwks"
+
+
+def test_otel_endpoint_env_overrides_file(tmp_path):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        yaml.dump({"observability": {"otel_endpoint": "http://file.example:4318"}})
+    )
+
+    with patch.dict(
+        "os.environ",
+        {"OTEL_EXPORTER_OTLP_ENDPOINT": "http://env.example:4318"},
+    ):
+        cfg = load_config(config_path=config_file)
+
+    assert cfg.observability.otel_endpoint == "http://env.example:4318"
+
+
+def test_controller_namespace_env_overrides_file(tmp_path):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        yaml.dump({"trainer": {"controller_namespace": "file-system"}})
+    )
+
+    with patch.dict(
+        "os.environ",
+        {"KUBEFLOW_MCP_CONTROLLER_NAMESPACE": "env-system"},
+    ):
+        cfg = load_config(config_path=config_file)
+
+    assert cfg.trainer.controller_namespace == "env-system"
+
+
+def test_multiple_clients_env_override(tmp_path):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(yaml.dump({"server": {"clients": ["trainer"]}}))
+
+    with patch.dict(
+        "os.environ",
+        {"KUBEFLOW_MCP_CLIENTS": "trainer, optimizer, hub"},
+    ):
+        cfg = load_config(config_path=config_file)
+
+    assert cfg.server.clients == ["trainer", "optimizer", "hub"]
