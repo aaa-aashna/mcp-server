@@ -154,6 +154,42 @@ def test_allow_and_deny_are_applied_together():
 
 
 def test_deny_category_removes_matching_tools():
+def test_allow_category_planning():
+    tools = {
+        "pre_flight",
+        "check_compatibility",
+        "get_cluster_resources",
+        "estimate_resources",
+        "fine_tune",
+    }
+
+    result = apply_policy_filters(tools, {"allow": ["category:planning"]})
+
+    assert result == {
+        "pre_flight",
+        "check_compatibility",
+        "get_cluster_resources",
+        "estimate_resources",
+    }
+
+
+def test_allow_and_deny_are_applied_together():
+    tools = {
+        "pre_flight",
+        "fine_tune",
+        "delete_training_job",
+        "delete_runtime",
+    }
+
+    result = apply_policy_filters(
+        tools,
+        {"allow": ["category:training", "risk:destructive"], "deny": ["risk:destructive"]},
+    )
+
+    assert result == {"fine_tune"}
+
+
+def test_deny_category_training():
     tools = {
         "fine_tune",
         "run_custom_training",
@@ -163,6 +199,11 @@ def test_deny_category_removes_matching_tools():
     policy = {"deny": ["category:training"]}
 
     assert apply_policy_filters(tools, policy) == {"list_training_jobs"}
+
+
+    result = apply_policy_filters(tools, {"deny": ["category:training"]})
+
+    assert result == {"list_training_jobs"}
 
 
 # ─── Namespace policy ────────────────────────────────────────────────────────
