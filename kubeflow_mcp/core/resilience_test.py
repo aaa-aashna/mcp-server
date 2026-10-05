@@ -270,6 +270,15 @@ class TestRateLimiter:
         rl.acquire()
         assert rl.acquire() is False
 
+    @pytest.mark.parametrize("tokens", [0.0, -1.0])
+    def test_acquire_rejects_non_positive_tokens(self, tokens):
+        rl = RateLimiter(rate=10.0, capacity=5.0)
+
+        with pytest.raises(ValueError, match="tokens must be greater than zero"):
+            rl.acquire(tokens)
+
+        assert rl.acquire(5.0) is True
+
     def test_tokens_refill_over_time(self, clock):
         rl = RateLimiter(rate=1000.0, capacity=5.0)
         for _ in range(5):

@@ -292,6 +292,9 @@ class RateLimiter:
 
     def acquire(self, tokens: float = 1.0) -> bool:
         """Try to acquire tokens. Returns True if successful."""
+        if tokens <= 0:
+            raise ValueError("tokens must be greater than zero")
+
         with self._lock:
             now = time.monotonic()
             elapsed = now - self._last_update
