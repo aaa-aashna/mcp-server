@@ -53,6 +53,15 @@ def test_load_config_defaults_when_no_file():
 
 
 @pytest.mark.parametrize(
+    ("rate_limit", "rate_capacity"),
+    [(0.0, 20.0), (-1.0, 20.0), (10.0, 0.0), (10.0, -1.0)],
+)
+def test_resilience_config_rejects_non_positive_values(rate_limit, rate_capacity):
+    with pytest.raises(ValueError):
+        ResilienceConfig(rate_limit=rate_limit, rate_capacity=rate_capacity)
+
+
+@pytest.mark.parametrize(
     "test_case",
     [
         TestCase(
