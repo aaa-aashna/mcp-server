@@ -286,6 +286,10 @@ class RateLimiter:
     _lock: threading.Lock = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
+        if self.rate <= 0:
+            raise ValueError("rate must be greater than zero")
+        if self.capacity <= 0:
+            raise ValueError("capacity must be greater than zero")
         self._tokens = self.capacity
         self._last_update = time.monotonic()
         self._lock = threading.Lock()
