@@ -23,6 +23,7 @@ import yaml
 from tests.common import TestCase
 
 from kubeflow_mcp.core.config import (
+    ResilienceConfig,
     ServerConfig,
     _find_config_file,
     load_config,
