@@ -196,6 +196,8 @@ def serve(
             )
 
     client_list = [c.strip() for c in clients.split(",") if c.strip()]
+    if not client_list:
+        raise click.ClickException("at least one client must be specified")
     server = create_server(
         clients=client_list,
         persona=persona,

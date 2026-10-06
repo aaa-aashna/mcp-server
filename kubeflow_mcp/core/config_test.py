@@ -94,6 +94,15 @@ def test_load_config_filters_empty_client_entries(monkeypatch):
     assert cfg.server.clients == ["trainer", "optimizer"]
 
 
+def test_load_config_rejects_all_empty_client_entries(monkeypatch):
+    monkeypatch.setenv("KUBEFLOW_MCP_CLIENTS", ",")
+    with (
+        patch("kubeflow_mcp.core.config._find_config_file", return_value=None),
+        pytest.raises(ValueError, match="at least one client must be specified"),
+    ):
+        load_config()
+
+
 def test_load_config_from_file(tmp_path):
     config_file = tmp_path / "config.yaml"
     config_file.write_text(

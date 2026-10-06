@@ -237,15 +237,16 @@ def load_config(config_path: Path | None = None) -> Config:
 
     # Build server config with env overrides
     server_file = file_config.get("server", {})
+    raw_clients = os.getenv(
+        "KUBEFLOW_MCP_CLIENTS",
+        ",".join(server_file.get("clients", ["trainer"])),
+    )
+    clients = [c.strip() for c in raw_clients.split(",") if c.strip()]
+    if raw_clients.strip() and not clients:
+        raise ValueError("at least one client must be specified")
+
     server = ServerConfig(
-        clients=[
-            c.strip()
-            for c in os.getenv(
-                "KUBEFLOW_MCP_CLIENTS",
-                ",".join(server_file.get("clients", ["trainer"])),
-            ).split(",")
-            if c.strip()
-        ],
+        clients=clients,
         persona=os.getenv(
             "KUBEFLOW_MCP_PERSONA",
             server_file.get("persona", "readonly"),
