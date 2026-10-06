@@ -265,8 +265,16 @@ class TestRateLimiter:
         rl = RateLimiter(rate=100.0, capacity=10.0)
         assert rl.acquire() is True
 
+    @pytest.mark.parametrize(
+        ("rate", "capacity"),
+        [(0.0, 1.0), (-1.0, 1.0), (1.0, 0.0), (1.0, -1.0)],
+    )
+    def test_rejects_non_positive_configuration(self, rate, capacity):
+        with pytest.raises(ValueError):
+            RateLimiter(rate=rate, capacity=capacity)
+
     def test_acquire_fails_when_exhausted(self):
-        rl = RateLimiter(rate=0.0, capacity=1.0)
+        rl = RateLimiter(rate=1.0, capacity=1.0)
         rl.acquire()
         assert rl.acquire() is False
 
