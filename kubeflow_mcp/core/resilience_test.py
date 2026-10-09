@@ -73,7 +73,7 @@ class TestCircuitBreaker:
             CircuitBreaker(**kwargs)
 
     def test_zero_recovery_timeout_is_allowed(self):
-        cb = CircuitBreaker(recovery_timeout=0.0)
+        cb = CircuitBreaker(failure_threshold=1, recovery_timeout=0.0)
         cb.record_failure()
         assert cb.acquire() is not None
         assert cb.state == CircuitState.HALF_OPEN
@@ -219,9 +219,7 @@ class TestGetBreaker:
             (5, -0.1, "recovery_timeout"),
         ],
     )
-    def test_configure_rejects_invalid_values(
-        self, failure_threshold, recovery_timeout, message
-    ):
+    def test_configure_rejects_invalid_values(self, failure_threshold, recovery_timeout, message):
         with pytest.raises(ValueError, match=message):
             configure_circuit_breaker(
                 failure_threshold=failure_threshold,
