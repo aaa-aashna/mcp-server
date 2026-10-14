@@ -378,7 +378,12 @@ class TestGetRuntimeImage:
 
 def _fake_job(name, status="Running", runtime_name="torch-tune", created_at=None):
     runtime = SimpleNamespace(name=runtime_name) if runtime_name else None
-    return SimpleNamespace(name=name, status=status, runtime=runtime, created_at=created_at)
+    return SimpleNamespace(
+        name=name,
+        status=status,
+        runtime=runtime,
+        creation_timestamp=created_at,
+    )
 
 
 def _fake_runtime(name):
