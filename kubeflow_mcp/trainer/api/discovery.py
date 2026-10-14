@@ -69,14 +69,9 @@ def _trainjob_runtime_to_mcp(runtime: object | None) -> dict[str, str] | None:
 
 def _trainjob_created_at_to_mcp(job: object) -> str | None:
     """Serialize a TrainJob creation timestamp as an ISO 8601 string."""
-    created_at = getattr(job, "created_at", None)
+    created_at = getattr(job, "creation_timestamp", None)
     if created_at is None:
-        metadata = getattr(job, "metadata", None)
-        if isinstance(metadata, dict):
-            created_at = metadata.get("creationTimestamp") or metadata.get("creation_timestamp")
-        elif metadata is not None:
-            created_at = getattr(metadata, "creation_timestamp", None)
-
+        return None
     if isinstance(created_at, str):
         return created_at
     isoformat = getattr(created_at, "isoformat", None)
