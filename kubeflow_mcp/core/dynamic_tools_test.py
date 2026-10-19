@@ -280,3 +280,21 @@ def test_find_tools_uses_rebuilt_registry_after_reinit(monkeypatch):
 
     assert "mode" not in second  # semantic search, not the keyword fallback
     assert [t["name"] for t in second["tools"]] == ["beta_tool"]
+
+
+
+def test_init_dynamic_tools_rejects_duplicate_names_without_mutating_registry():
+    dynamic_tools.init_dynamic_tools([alpha_tool, beta_tool], {})
+    registry_before = dict(dynamic_tools.TOOL_REGISTRY)
+    hierarchy_before = {category: list(names) for category, names in dynamic_tools.TOOL_HIERARCHY.items()}
+
+    def duplicate_name() -> dict:
+        return {}
+
+    duplicate_name.__name__ = "alpha_tool"
+
+    with pytest.raises(ValueError, match="Duplicate dynamic tool name.*alpha_tool"):
+        dynamic_tools.init_dynamic_tools([alpha_tool, duplicate_name], {})
+
+    assert dynamic_tools.TOOL_REGISTRY == registry_before
+    assert dynamic_tools.TOOL_HIERARCHY == hierarchy_before
