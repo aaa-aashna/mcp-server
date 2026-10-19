@@ -60,6 +60,14 @@ def init_dynamic_tools(
     Must be called before any meta-tool is invoked. Typically called by
     create_server() after collecting tools from client modules.
     """
+    # Validate names before changing global state so duplicate registrations fail
+    # without leaving a partially initialized registry.
+    names = [func.__name__ for func in tool_funcs]
+    duplicates = sorted({name for name in names if names.count(name) > 1})
+    if duplicates:
+        duplicate_list = ", ".join(duplicates)
+        raise ValueError(f"Duplicate dynamic tool name(s): {duplicate_list}")
+
     _embedding_cache.reset()
     TOOL_REGISTRY.clear()
     TOOL_HIERARCHY.clear()
