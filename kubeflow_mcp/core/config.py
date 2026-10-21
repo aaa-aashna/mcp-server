@@ -238,15 +238,18 @@ def load_config(config_path: Path | None = None) -> Config:
     """
     file_config: dict[str, Any] = {}
 
+    # Load from file
     if config_path is not None:
         if config_path.exists():
             file_config = _load_yaml_config(config_path)
+            logger.debug(f"Loaded config from {config_path}")
         else:
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
     else:
         default_path = _find_config_file()
         if default_path is not None:
             file_config = _load_yaml_config(default_path)
+            logger.debug(f"Loaded config from {default_path}")
 
     server_file = file_config.get("server", {})
     raw_clients = os.getenv(
