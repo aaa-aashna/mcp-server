@@ -160,6 +160,8 @@ def test_load_config_env_overrides_file(tmp_path):
     [
         ("server: [invalid", "Failed to load configuration file"),
         ("- trainer\n- optimizer\n", "root must be a mapping"),
+        ("null\n", "root must be a mapping"),
+        ("~\n", "root must be a mapping"),
     ],
 )
 def test_load_config_rejects_invalid_yaml_and_non_mapping_roots(tmp_path, contents, message):
