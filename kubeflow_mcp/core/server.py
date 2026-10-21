@@ -37,7 +37,7 @@ from kubeflow_mcp.common.constants import (
     TOOL_NEXT_HINTS,
     TOOL_TO_PHASE,
     ErrorCode,
-    is_infrastructure_error,
+    record_tool_result,
 )
 from kubeflow_mcp.core.dynamic_tools import get_mode_tools, init_dynamic_tools
 from kubeflow_mcp.core.health import (
@@ -163,11 +163,14 @@ def _audit_wrap(tool_func):
         persona = get_effective_persona()
         start = time.monotonic()
 
+        # FastMCP already opens the SERVER span "tools/call <tool>" and parents it on
+        # the traceparent from the request _meta. This span is an INTERNAL child for
+        # the tool execution itself, so a call no longer shows two identical spans.
         span_kwargs: dict[str, Any] = {}
         if SpanKind is not None:
-            span_kwargs["kind"] = SpanKind.SERVER
+            span_kwargs["kind"] = SpanKind.INTERNAL
 
-        with tracer.start_as_current_span(f"tools/call {tool_name}", **span_kwargs) as span:
+        with tracer.start_as_current_span(f"execute_tool {tool_name}", **span_kwargs) as span:
             # OTel MCP semantic conventions (Development status)
             # https://opentelemetry.io/docs/specs/semconv/gen-ai/mcp/
             span.set_attribute("mcp.method.name", "tools/call")
@@ -218,21 +221,9 @@ def _audit_wrap(tool_func):
             try:
                 result = tool_func(**kwargs)
                 duration_ms = int((time.monotonic() - start) * 1000)
-                is_success = (
-                    "error_code" not in result and "error" not in result
-                    if isinstance(result, dict)
-                    else True
-                )
+                is_success = record_tool_result(breaker, result, generation)
                 span.set_attribute("tool.success", is_success)
                 span.set_attribute("tool.duration_ms", duration_ms)
-                # Only a real success resets the breaker. A result that says nothing
-                # about the backend hands its half-open slot back instead.
-                if is_success:
-                    breaker.record_success(generation)
-                elif is_infrastructure_error(result):
-                    breaker.record_failure(generation)
-                else:
-                    breaker.release(generation)
 
                 logger.info(
                     "tool_call",
