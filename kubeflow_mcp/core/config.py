@@ -204,8 +204,7 @@ def _load_yaml_config(path: Path) -> dict[str, Any]:
         data = yaml.safe_load(content)
         if data is None and yaml.compose(content) is not None:
             raise ValueError(
-                f"Invalid configuration file '{path}': root must be a mapping, "
-                "got NoneType"
+                f"Invalid configuration file '{path}': root must be a mapping, got NoneType"
             )
     except ValueError:
         raise
