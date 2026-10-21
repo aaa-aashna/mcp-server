@@ -200,7 +200,15 @@ def _load_yaml_config(path: Path) -> dict[str, Any]:
 
     try:
         with path.open(encoding="utf-8") as f:
-            data = yaml.safe_load(f)
+            content = f.read()
+        data = yaml.safe_load(content)
+        if data is None and yaml.compose(content) is not None:
+            raise ValueError(
+                f"Invalid configuration file '{path}': root must be a mapping, "
+                "got NoneType"
+            )
+    except ValueError:
+        raise
     except Exception as exc:
         raise ValueError(f"Failed to load configuration file '{path}': {exc}") from exc
 
