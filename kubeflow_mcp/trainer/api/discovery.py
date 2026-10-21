@@ -81,6 +81,8 @@ def _trainjob_created_at_to_mcp(job: object) -> str | None:
         if isinstance(serialized, str):
             return serialized
     return None
+
+
 # Upper bound on steps returned by get_training_job, so a large multi-node job
 # cannot blow up the response. The step summary still counts every step.
 MAX_JOB_STEPS = 32
