@@ -172,6 +172,11 @@ def test_load_config_rejects_invalid_yaml_and_non_mapping_roots(tmp_path, conten
         load_config(config_path=config_file)
 
 
+# TODO(test): test config_path that doesn't exist falls back to default search
+# TODO(test): test auth config env overrides (KUBEFLOW_MCP_AUTH_TOKEN, KUBEFLOW_MCP_JWKS_URI)
+# TODO(test): test OTEL env, controller namespace, and multiple clients
+
+
 def test_load_config_rejects_missing_explicit_config_file(tmp_path):
     config_file = tmp_path / "missing.yaml"
 
