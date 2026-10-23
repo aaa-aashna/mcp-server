@@ -552,7 +552,7 @@ class TestGetTrainingLogsCursor:
         assert res["data"]["lines"] == 5
         assert res["data"]["next_offset"] == total
         assert res["data"]["total_lines"] == total
-        assert res["data"]["logs"] == "\\n".join(
+        assert res["data"]["logs"] == "\n".join(
             f"log line {i}" for i in range(total - 5, total)
         )
 
