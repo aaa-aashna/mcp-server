@@ -303,13 +303,9 @@ def get_training_logs(
                     page = fallback_lines[since_line : since_line + _effective_max]
                     total = len(fallback_lines)
                     failure_tail = fallback_lines[-MAX_LOG_LINES:]
-            return _cursor_response(
-                name, step, page, total, failure_tail, since_line
-            )
+            return _cursor_response(name, step, page, total, failure_tail, since_line)
 
-        log_lines, _fallback_was_used = _collect_log_lines(
-            client, name, step, namespace
-        )
+        log_lines, _fallback_was_used = _collect_log_lines(client, name, step, namespace)
 
         # ── Tail mode (unchanged) ─────────────────────────────────────────────
         if len(log_lines) > _effective_max:
