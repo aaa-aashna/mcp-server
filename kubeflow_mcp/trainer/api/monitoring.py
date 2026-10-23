@@ -308,7 +308,7 @@ def get_training_logs(
             )
 
         log_lines, _fallback_was_used = _collect_log_lines(
-            client, name, step, namespace, cursor_mode=False
+            client, name, step, namespace
         )
 
         # ── Tail mode (unchanged) ─────────────────────────────────────────────
