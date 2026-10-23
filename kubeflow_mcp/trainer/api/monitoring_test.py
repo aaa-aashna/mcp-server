@@ -552,9 +552,7 @@ class TestGetTrainingLogsCursor:
         assert res["data"]["lines"] == 5
         assert res["data"]["next_offset"] == total
         assert res["data"]["total_lines"] == total
-        assert res["data"]["logs"] == "\n".join(
-            f"log line {i}" for i in range(total - 5, total)
-        )
+        assert res["data"]["logs"] == "\n".join(f"log line {i}" for i in range(total - 5, total))
 
     @patch(PATCH_NS_CHECK, return_value=None)
     @patch(PATCH_CLIENT)
