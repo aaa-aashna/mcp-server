@@ -66,19 +66,14 @@ def _collect_log_lines(
     name: str,
     step: str,
     namespace: str | None,
-    cursor_mode: bool,
 ) -> tuple[list[str], bool]:
-    """Fetch log lines and attempt the previous-container fallback if empty.
+    """Fetch a bounded tail of log lines and attempt previous-container fallback.
 
     Returns (log_lines, fallback_was_used).
     """
-    if cursor_mode:
-        # No deque cap: cursor mode must be able to address any line index.
-        log_lines: list[str] = list(client.get_job_logs(name=name, step=step, follow=False))
-    else:
-        log_lines = list(
-            deque(client.get_job_logs(name=name, step=step, follow=False), maxlen=MAX_LOG_LINES)
-        )
+    log_lines = list(
+        deque(client.get_job_logs(name=name, step=step, follow=False), maxlen=MAX_LOG_LINES)
+    )
 
     if log_lines:
         return log_lines, False
@@ -293,7 +288,7 @@ def get_training_logs(
             if total == 0:
                 # Preserve the previous-container fallback without buffering active logs.
                 fallback_lines, fallback_was_used = _collect_log_lines(
-                    client, name, step, namespace, cursor_mode=False
+                    client, name, step, namespace
                 )
                 if fallback_was_used and fallback_lines:
                     return ToolError(
