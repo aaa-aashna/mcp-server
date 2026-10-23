@@ -288,10 +288,21 @@ def inspect_controller(
                     ),
                     None,
                 ),
-                "last_seen": (
-                    ev.last_timestamp.isoformat()
-                    if getattr(ev, "last_timestamp", None) is not None
-                    else None
+                "last_seen": next(
+                    (
+                        timestamp.isoformat() if hasattr(timestamp, "isoformat") else str(timestamp)
+                        for timestamp in (
+                            getattr(ev, "last_timestamp", None),
+                            getattr(ev, "event_time", None),
+                            getattr(
+                                getattr(ev, "metadata", None),
+                                "creation_timestamp",
+                                None,
+                            ),
+                        )
+                        if timestamp is not None
+                    ),
+                    None,
                 ),
             }
             for ev in events.items
