@@ -145,7 +145,6 @@ def _cursor_response(
     total: int,
     failure_tail: list[str],
     since_line: int,
-    effective_max: int,
 ) -> dict[str, Any]:
     """Build the cursor-mode response dict. Called only when since_line is set."""
 
@@ -304,7 +303,7 @@ def get_training_logs(
                     total = len(fallback_lines)
                     failure_tail = fallback_lines[-MAX_LOG_LINES:]
             return _cursor_response(
-                name, step, page, total, failure_tail, since_line, _effective_max
+                name, step, page, total, failure_tail, since_line
             )
 
         log_lines, _fallback_was_used = _collect_log_lines(
