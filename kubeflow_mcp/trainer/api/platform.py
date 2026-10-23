@@ -274,7 +274,7 @@ def inspect_controller(
                 "count": ev.count,
                 "first_seen": next(
                     (
-                        timestamp.isoformat()
+                        timestamp.isoformat() if hasattr(timestamp, "isoformat") else str(timestamp)
                         for timestamp in (
                             getattr(ev, "first_timestamp", None),
                             getattr(ev, "event_time", None),
