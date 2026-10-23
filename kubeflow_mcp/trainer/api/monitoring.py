@@ -366,20 +366,27 @@ def get_training_events(
         events = client.get_job_events(name=name)
 
         event_list = []
-        for event in events[:limit]:
-            # Prefer the Kubernetes Event v1 timestamp, then fall back to
-            # legacy core/v1 Event fields for older client/API representations.
+        # Events come oldest first; keep the most recent ones, which explain failures.
+        for event in events[-limit:]:
+            # Prefer the Kubernetes Event v1 timestamp, then fall back to legacy
+            # fields and finally the object's creation timestamp.
             et = next(
                 (
                     value
-                    for field in ("event_time", "last_timestamp", "first_timestamp")
-                    if (value := getattr(event, field, None)) is not None
+                    for value in (
+                        getattr(event, "event_time", None),
+                        getattr(event, "last_timestamp", None),
+                        getattr(event, "first_timestamp", None),
+                        getattr(
+                            getattr(event, "metadata", None),
+                            "creation_timestamp",
+                            None,
+                        ),
+                    )
+                    if value is not None
                 ),
                 None,
             )
-        # Events come oldest first; keep the most recent ones, which explain failures.
-        for event in events[-limit:]:
-            et = getattr(event, "event_time", None)
             if et is not None and hasattr(et, "isoformat"):
                 event_time_str = et.isoformat()
             else:
