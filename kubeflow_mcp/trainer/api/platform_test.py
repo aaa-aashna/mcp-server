@@ -390,6 +390,8 @@ def test_inspect_controller_events_response(mock_k8s_apis, scan_default_namespac
     event.count = 2
     event.first_timestamp = datetime(2024, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
     event.last_timestamp = None
+    event.event_time = None
+    event.metadata.creation_timestamp = None
     core.list_namespaced_event.return_value = MagicMock(items=[event])
     result = inspect_controller(view="events")
     data = verify_tool_success(result)
