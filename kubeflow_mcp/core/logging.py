@@ -163,7 +163,11 @@ def setup_logging(
         format = "console" if sys.stderr.isatty() else "json"
 
     normalized_level = level.upper()
-    if not isinstance(getattr(logging, normalized_level, None), int):
+    normalized_level = {"WARN": "WARNING", "FATAL": "CRITICAL"}.get(
+        normalized_level, normalized_level
+    )
+    valid_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+    if normalized_level not in valid_levels:
         raise ValueError(
             f"Invalid log level '{level}'. Expected one of DEBUG, INFO, WARNING, ERROR, CRITICAL."
         )
