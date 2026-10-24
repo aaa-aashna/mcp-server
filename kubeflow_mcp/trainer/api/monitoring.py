@@ -299,10 +299,9 @@ def get_training_logs(
                         ),
                         error_code=ErrorCode.VALIDATION_ERROR,
                     ).model_dump()
-                if fallback_lines:
-                    page = fallback_lines[since_line : since_line + _effective_max]
-                    total = len(fallback_lines)
-                    failure_tail = fallback_lines[-MAX_LOG_LINES:]
+                # The fallback helper retains only a bounded tail, so its indices
+                # cannot be used as offsets into the full active log stream. Return
+                # an empty page and let the caller poll again.
             return _cursor_response(name, step, page, total, failure_tail, since_line)
 
         log_lines, _fallback_was_used = _collect_log_lines(client, name, step, namespace)
