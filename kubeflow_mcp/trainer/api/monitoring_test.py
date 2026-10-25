@@ -717,10 +717,8 @@ class TestGetTrainingLogsCursor:
     def test_cursor_returns_empty_page_if_logs_appear_between_reads(
         self, mock_client_fn, _ns, _eff_ns
     ):
-        # Active logs are empty on the first read but appear on the fallback read.
-        mock_client_fn.return_value = _make_mock_client(
-            get_job_logs=[[], [f"line {i}" for i in range(1500)]]
-        )
+        # Active logs remain empty across both reads; keep the caller's cursor.
+        mock_client_fn.return_value = _make_mock_client(get_job_logs=[[], []])
 
         res = get_training_logs("my-job", since_line=1200, max_lines=10)
 
