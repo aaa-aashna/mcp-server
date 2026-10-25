@@ -714,9 +714,7 @@ class TestGetTrainingLogsCursor:
     @patch(PATCH_EFF_NS, side_effect=RuntimeError("kubeconfig missing"))
     @patch(PATCH_NS_CHECK, return_value=None)
     @patch(PATCH_CLIENT)
-    def test_cursor_preserves_offset_when_reads_remain_empty(
-        self, mock_client_fn, _ns, _eff_ns
-    ):
+    def test_cursor_preserves_offset_when_reads_remain_empty(self, mock_client_fn, _ns, _eff_ns):
         # Active logs remain empty across both reads; keep the caller's cursor.
         mock_client_fn.return_value = _make_mock_client()
         mock_client_fn.return_value.get_job_logs.side_effect = [[], []]
