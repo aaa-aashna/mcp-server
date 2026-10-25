@@ -162,6 +162,19 @@ def _cursor_response(
         ).model_dump()
 
     if since_line > total:
+        # When an empty read races with newly appearing logs, keep the caller's
+        # cursor so it can poll again instead of resetting to offset zero.
+        if total == 0:
+            return ToolResponse(
+                data={
+                    "job": name,
+                    "step": step,
+                    "logs": "",
+                    "lines": 0,
+                    "next_offset": since_line,
+                    "total_lines": 0,
+                }
+            ).model_dump()
         return ToolResponse(
             data={
                 "job": name,
