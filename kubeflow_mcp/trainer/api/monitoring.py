@@ -443,7 +443,7 @@ def wait_for_training(
 ) -> dict[str, Any]:
     """Wait for a job to reach one or more target statuses.
 
-    Blocks until the job reaches any of the expected statuses, or times out.
+    Blocks until the job reaches one of the expected statuses, or times out.
 
     Args:
         name: TrainJob name.
