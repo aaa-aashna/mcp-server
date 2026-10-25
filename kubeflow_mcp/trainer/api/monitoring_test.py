@@ -718,7 +718,8 @@ class TestGetTrainingLogsCursor:
         self, mock_client_fn, _ns, _eff_ns
     ):
         # Active logs remain empty across both reads; keep the caller's cursor.
-        mock_client_fn.return_value = _make_mock_client(get_job_logs=[[], []])
+        mock_client_fn.return_value = _make_mock_client()
+        mock_client_fn.return_value.get_job_logs.side_effect = [[], []]
 
         res = get_training_logs("my-job", since_line=1200, max_lines=10)
 
