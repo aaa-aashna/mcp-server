@@ -262,7 +262,8 @@ def test_create_runtime_permission_denied_returns_permission_error(mock_k8s_apis
 
     error = verify_tool_error(result, error_code=PERMISSION_DENIED)
     assert "Permission denied" in error["error"]
-    assert error["details"]["status"] == 403
+    assert error["details"]["exception"] == "ApiException"
+    assert "403" in error["details"]["message"]
 
 
 def test_delete_runtime_preview_lists_dependent_trainjobs(mock_k8s_apis):
